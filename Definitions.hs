@@ -53,9 +53,9 @@ parseStringToArrayArea array = [ toArea x | x <- array ]
 toArea :: Char -> Area
 toArea c
     | c == '0' = Hole
-    | c == '1' = Ground
+    | c == '1' = Meta
     | c == '2' = Ice
-    | otherwise = Meta
+    | otherwise = Ground
 
 
 initJelly :: [String] -> Jelly
@@ -71,13 +71,13 @@ startingArea lines = ((xi,yi),(x,y))
     where 
         ((xi,yi),(xf,yf)) = nearAndFarPointStartArea lines
         x = xf - xi + 1
-        y = yf - yf + 1
+        y = yf - yi + 1
 
 
 nearAndFarPointStartArea :: [String] -> ((Int,Int),(Int,Int))
 nearAndFarPointStartArea lines@(l:_) = (p1,p2)
     where
-        points = [(a,b) | a <- [0..(length lines - 1)], b <- [0..(length l - 1)]]
+        points = [(x,y) | y <- [0..(length lines - 1)], x <- [0..(length l - 1)]]
         areaPoints = [ p | p <- points, isAnAreaPoint p lines ]
         p1 = head areaPoints
         p2 = areaPoints !! (length areaPoints - 1)
@@ -85,7 +85,7 @@ nearAndFarPointStartArea lines@(l:_) = (p1,p2)
 
 -- -1 is where jelly is on the map
 isAnAreaPoint :: (Int,Int) -> [String] -> Bool
-isAnAreaPoint (x,y) table = table !! x !! y == '5' 
+isAnAreaPoint (x,y) table = table !! y !! x == '5' 
 
 
 matchTest :: Table -> Jelly -> Bool
