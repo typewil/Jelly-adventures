@@ -1,5 +1,6 @@
+Autor: Wilber Bermeo [typewil](https://www.instagram.com/typewil/)
+
 # Jelly's adventure
-@Autor: Wilber Bermeo (typewil)[https://www.instagram.com/typewil/]
 Basic game to learn Haskell 
 
 STEPS TO MAKE IT RUN
