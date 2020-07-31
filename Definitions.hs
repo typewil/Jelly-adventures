@@ -1,5 +1,5 @@
 {- 
-    author: Wilber Bermeo [https://www.instagram.com/typewil] 
+    @autor: [typewil](https://www.instagram.com/typewil/)
 -}
 
 module Definitions
