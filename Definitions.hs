@@ -11,12 +11,19 @@ module Definitions
     ) where
 
 type Point2D = (Int,Int)
-type Dimen3D = (Int,Int,Int)
+type Volume = (Int,Int,Int)
 
-data Area   = Meta | Ground | Ice | Hole deriving Show
-data Jelly  = Jelly (Point2D,Dimen3D) deriving Show
-data Table  = Table [[Area]]  deriving Show
+data Area   = Goal | Ground | Ice | Hole deriving Show
+data Jelly  = Jelly (Point2D,Volume) deriving Show
+type Table  = [[Area]]
 data World  = World (Jelly,Table)  deriving Show
+
+instance Eq Area where
+    Goal == Goal = True
+    Ground == Ground = True
+    Ice == Ice = True
+    Hole == Hole = True
+    _ == _ = False
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -26,10 +33,9 @@ createWorld content = do
                     let
                         rows = lines content
                         table = initTable $ drop 1 rows
-                        jelly = initJelly rows
-                        match = matchTest table jelly
-
-                    if match
+                        jelly@(Jelly(_,volume))= initJelly rows
+                        
+                    if couldFitInGoal table volume
                     then
                         Just $ World (jelly,table)
                     else
@@ -37,7 +43,7 @@ createWorld content = do
 
 
 initTable :: [String] -> Table
-initTable table = Table $ initTable' table
+initTable table = initTable' table
 
 
 -- creates game table with a part of the content of the game file
@@ -53,7 +59,7 @@ parseStringToArrayArea array = [ toArea x | x <- array ]
 toArea :: Char -> Area
 toArea c
     | c == '0' = Hole
-    | c == '1' = Meta
+    | c == '1' = Goal
     | c == '2' = Ice
     | otherwise = Ground
 
@@ -62,31 +68,42 @@ initJelly :: [String] -> Jelly
 initJelly (l:xl) = Jelly ((a,b),(x,y,z))
     where
         z = read l :: Int -- the first line in the file is the height of the jelly
-        ((a,b),(x,y)) = startingArea xl
+        ((a,b),(x,y)) = pointAndStartingArea xl
 
 
 -- the first tuple is where the are stars and the second tuple is the dimentions of this area
-startingArea :: [String] -> ((Int,Int),(Int,Int))
-startingArea lines = ((xi,yi),(x,y))
+pointAndStartingArea :: [String] -> ((Int,Int),(Int,Int))
+pointAndStartingArea lines = ((xi,yi),(x,y))
     where 
-        ((xi,yi),(xf,yf)) = nearAndFarPointStartArea lines
+        ((xi,yi),(xf,yf)) = nearAndFarPoint lines '5'
         x = xf - xi + 1
         y = yf - yi + 1
 
 
-nearAndFarPointStartArea :: [String] -> ((Int,Int),(Int,Int))
-nearAndFarPointStartArea lines@(l:_) = (p1,p2)
+nearAndFarPoint :: Eq a => [[a]] -> a -> ((Int,Int),(Int,Int))
+nearAndFarPoint rows@(r:_) target = (p1,p2)
     where
-        points = [(x,y) | y <- [0..(length lines - 1)], x <- [0..(length l - 1)]]
-        areaPoints = [ p | p <- points, isAnAreaPoint p lines ]
+        points = [(x,y) | y <- [0..(length rows - 1)], x <- [0..(length r - 1)]]
+        areaPoints = [ p | p <- points, appearsAtThisPoint p target rows ]
         p1 = head areaPoints
         p2 = areaPoints !! (length areaPoints - 1)
 
 
--- -1 is where jelly is on the map
-isAnAreaPoint :: (Int,Int) -> [String] -> Bool
-isAnAreaPoint (x,y) table = table !! y !! x == '5' 
+-- 5 is where jelly is on the map
+appearsAtThisPoint :: Eq a => (Int,Int) -> a -> [[a]] -> Bool
+appearsAtThisPoint (x,y) target table = table !! y !! x == target
 
 
-matchTest :: Table -> Jelly -> Bool
-matchTest _ _ = True 
+-- I check if a face of Jelly fits the goal
+couldFitInGoal :: Table -> Volume -> Bool
+couldFitInGoal table volume@(x,y,z) = (xGaol >= x && yGoal >= y || xGaol >= y && yGoal >= x) || (xGaol >= y && yGoal >= z || xGaol >= z && yGoal >= y) 
+    where
+        (xGaol,yGoal) = dimentionsGoal table
+
+
+dimentionsGoal :: Table -> (Int,Int)
+dimentionsGoal table = (x,y)
+    where
+        ((xi,yi),(xf,yf)) = nearAndFarPoint table Goal
+        x = xf - xi + 1
+        y = yf - yi + 1

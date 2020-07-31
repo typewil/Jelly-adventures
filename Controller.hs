@@ -1,5 +1,5 @@
 {- 
-    @autor: [typewil](https://www.instagram.com/typewil/)
+    author: Wilber Bermeo [https://www.instagram.com/typewil] 
 -}
 
 module Controller
