@@ -1,10 +1,11 @@
 {- 
-    @autor: [typewil](https://www.instagram.com/typewil/)
+    author: Wilber Bermeo [https://www.instagram.com/typewil] 
 -}
 
 import System.Environment
 import System.IO
 import Data.List
+import Data.Maybe
 
 import Controller
     (
@@ -29,15 +30,19 @@ main = do
 
     if length args < 2
     then
-        error "WRONG NUMBER OF ARGUMENTS"
+        error "NÚMERO DE ARGUMENTOS ERRONEO"
     else do
         program <- getProgName
-        putStrLn $ program ++ " running..."
+        putStrLn $ program ++ " esta cargando..."
 
         content <- readFile path
 
         let (Just engine) = lookup (head action) dispatch
-            (Just world) = createWorld content
+            world = createWorld content
         
-        print world
-        engine world        
+        if isJust world
+        then do
+                putStrLn "Juego cargado correctamente!"
+                engine $ fromJust world
+        else 
+            putStrLn "Hubo un problema al crear el juego"
