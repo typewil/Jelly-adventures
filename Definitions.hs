@@ -10,13 +10,13 @@ module Definitions
         createWorld
     ) where
 
-type Point2D = (Int,Int)
+type Point = (Int,Int)
 type Volume = (Int,Int,Int)
-
-data Area   = Goal | Ground | Ice | Hole deriving Show
-data Jelly  = Jelly (Point2D,Volume) deriving Show
 type Table  = [[Area]]
-data World  = World (Jelly,Table)  deriving Show
+
+data Area = Goal | Ground | Ice | Hole deriving Show
+data Jelly = Jelly (Point,Volume) deriving Show
+data World = World (Jelly,Table)  deriving Show
 
 instance Eq Area where
     Goal == Goal = True
@@ -42,18 +42,14 @@ createWorld content = do
                         Nothing
 
 
-initTable :: [String] -> Table
-initTable table = initTable' table
-
-
 -- creates game table with a part of the content of the game file
-initTable' :: [String] -> [[Area]]
-initTable' [] = []
-initTable' (x:xs) = (parseStringToArrayArea x) : initTable' xs
+initTable :: [String] -> Table
+initTable [] = []
+initTable (x:xs) = (parceStringToArrayArea x) : initTable xs
 
 
-parseStringToArrayArea :: String -> [Area]
-parseStringToArrayArea array = [ toArea x | x <- array ]
+parceStringToArrayArea :: String -> [Area]
+parceStringToArrayArea array = [ toArea x | x <- array ]
 
 
 toArea :: Char -> Area

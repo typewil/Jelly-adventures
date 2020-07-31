@@ -42,7 +42,7 @@ main = do
         
         if isJust world
         then do
-                putStrLn "Juego cargado correctamente!"
-                engine $ fromJust world
+            putStrLn "Juego cargado correctamente!"
+            engine $ fromJust world
         else 
             putStrLn "Hubo un problema al crear el juego"
