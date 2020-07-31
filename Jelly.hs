@@ -39,4 +39,5 @@ main = do
         let (Just engine) = lookup (head action) dispatch
             (Just world) = createWorld content
         
+        print world
         engine world        

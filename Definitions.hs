@@ -13,10 +13,10 @@ module Definitions
 type Point2D = (Int,Int)
 type Dimen3D = (Int,Int,Int)
 
-data Area   = Meta | Ground | Ice | Hole
-data Jelly  = Jelly (Point2D,Dimen3D)
-data Table  = Table [[Area]] 
-data World  = World (Jelly,Table)
+data Area   = Meta | Ground | Ice | Hole deriving Show
+data Jelly  = Jelly (Point2D,Dimen3D) deriving Show
+data Table  = Table [[Area]]  deriving Show
+data World  = World (Jelly,Table)  deriving Show
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -52,10 +52,10 @@ parseStringToArrayArea array = [ toArea x | x <- array ]
 
 toArea :: Char -> Area
 toArea c
-    | c == '0' = Meta
+    | c == '0' = Hole
     | c == '1' = Ground
     | c == '2' = Ice
-    | otherwise = Hole
+    | otherwise = Meta
 
 
 initJelly :: [String] -> Jelly
@@ -75,9 +75,17 @@ startingArea lines = ((xi,yi),(x,y))
 
 
 nearAndFarPointStartArea :: [String] -> ((Int,Int),(Int,Int))
-nearAndFarPointStartArea lines@(l:_) = 
+nearAndFarPointStartArea lines@(l:_) = (p1,p2)
     where
-        points = [(a,b) | b <- [0..(length lines - 1)], a <- [0..(length l - 1)]]
+        points = [(a,b) | a <- [0..(length lines - 1)], b <- [0..(length l - 1)]]
+        areaPoints = [ p | p <- points, isAnAreaPoint p lines ]
+        p1 = head areaPoints
+        p2 = areaPoints !! (length areaPoints - 1)
+
+
+-- -1 is where jelly is on the map
+isAnAreaPoint :: (Int,Int) -> [String] -> Bool
+isAnAreaPoint (x,y) table = table !! x !! y == '5' 
 
 
 matchTest :: Table -> Jelly -> Bool
