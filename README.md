@@ -1,4 +1,4 @@
-@autor: [typewil](https://www.instagram.com/typewil/)
+-> [typewil](https://www.instagram.com/typewil/) <-
 
 # Jelly's adventure
 Basic game to learn Haskell 
