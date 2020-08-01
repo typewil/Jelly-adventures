@@ -63,13 +63,21 @@ moveJelly (Jelly((a,b),(x,y,z))) movement
     | otherwise = Jelly((a+x,b),(z,y,x))
 
 
+whereIsJelly :: Jelly -> [Point]
+whereIsJelly (Jelly((a,b),(x,y,_))) = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
+    where
+        (a',b') = (a+x-1,b+y-1)
+
+        
 reachedGaol :: Jelly -> Table -> Bool
 reachedGaol jelly tbl = jellyFits points tbl
     where
         points = whereIsJelly jelly
-    
 
+
+-- not implemented yet
 jellyFits :: [Point] -> Table -> Bool
+jellyFits points tbl = False
 
 
 suckedDown :: Jelly -> Table -> Bool
@@ -101,6 +109,24 @@ holeIgnored points table = appearsThisArea points table Hole
 appearsThisArea :: [Point] -> Table -> Area -> Bool
 appearsThisArea [] _ _ = False
 appearsThisArea ((a,b):xs) tbl area = tbl !! b !! a == area || appearsThisArea xs tbl area
+
+
+-- given the layout of the output I put on the layout Jelly's representation
+generateOutput :: [String] -> Char -> [(Int,Int)] -> String
+generateOutput canva _ [] = unlines canva
+generateOutput canva jelly ((a,b):xs) = generateOutput canva' jelly xs
+    where
+        head = take a $ canva !! b
+        tail = drop (a+1) $ canva !! b
+        line = head ++ [jelly] ++ tail
+        canva' = take b canva ++ [line] ++ drop (b+1) canva 
+
+
+printWorld :: World -> IO()
+printWorld (World(jelly,table)) = putStr $ generateOutput canva 'B' points 
+    where
+        canva = [ map toChar array | array <- table ]
+        points = whereIsJelly jelly
 
 
 play :: World -> IO()
@@ -137,27 +163,3 @@ resolve world = do
                     putChar c
                     resolve world
                 else return ()
-
-
--- given the layout of the output I put on the layout Jelly's representation
-generateOutput :: [String] -> Char -> [(Int,Int)] -> String
-generateOutput canva _ [] = unlines canva
-generateOutput canva jelly ((a,b):xs) = generateOutput canva' jelly xs
-    where
-        head = take a $ canva !! b
-        tail = drop (a+1) $ canva !! b
-        line = head ++ [jelly] ++ tail
-        canva' = take b canva ++ [line] ++ drop (b+1) canva 
-
-
-printWorld :: World -> IO()
-printWorld (World(jelly,table)) = putStr $ generateOutput canva 'B' points 
-    where
-        canva = [ map toChar array | array <- table ]
-        points = whereIsJelly jelly
-
-
-whereIsJelly :: Jelly -> [Point]
-whereIsJelly (Jelly((a,b),(x,y,_))) = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
-    where
-        (a',b') = (a+x-1,b+y-1)
