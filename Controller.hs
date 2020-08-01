@@ -17,14 +17,15 @@ import Data.Maybe
 import Definitions
     (
         World(..),
-        Jelly(..)
+        Jelly(..),
+        toChar
     )
 
-data Movement = Forward | Backward | Leftward | Rightward deriving Show
+data Movement = Upward | Downward | Leftward | Rightward deriving Show
 
 instance Eq Movement where
-    Forward == Forward = True
-    Backward == Backward = True
+    Upward == Upward = True
+    Downward == Downward = True
     Leftward == Leftward = True
     Rightward == Rightward = True
     _ == _ = False
@@ -42,49 +43,49 @@ dispatch =  [
 
 toMovement :: Char -> Maybe Movement
 toMovement c 
-    | c == 'w' || c == 'W' || c == 'i' || c == 'I' = Just Forward
-    | c == 's' || c == 'S' || c == 'k' || c == 'K' = Just Backward
+    | c == 'w' || c == 'W' || c == 'i' || c == 'I' = Just Upward
+    | c == 's' || c == 'S' || c == 'k' || c == 'K' = Just Downward
     | c == 'a' || c == 'A' || c == 'j' || c == 'J' = Just Leftward
     | c == 'd' || c == 'D' || c == 'l' || c == 'L' = Just Rightward
     | otherwise = Nothing
 
 
--- there just 4 type of movements
+-- there are just 4 type of movements
 moveJelly :: Jelly -> Movement -> Jelly
-moveJelly jelly movement
-    | movement == Forward = moveForward jelly  
-    | movement == Backward = moveBackward jelly
-    | movement == Leftward = moveLeftward jelly
-    | otherwise = moveRightward jelly
+moveJelly (Jelly((a,b),(x,y,z))) movement
+    | movement == Upward = Jelly((a,b-z),(x,z,y))  
+    | movement == Downward = Jelly((a,b+y),(x,z,y))
+    | movement == Leftward = Jelly((a-z,b),(z,y,x))
+    | otherwise = Jelly((a+x,b),(z,y,x))
 
 
-moveForward :: Jelly -> Jelly
-moveForward jelly@(Jelly(p1,(x,y,z))) = Jelly(p1,(x,z,y))
+reachedGaol :: World -> Bool
+reachedGaol _ = False
 
 
-moveBackward :: Jelly -> Jelly
-moveBackward jelly@(Jelly(p1,(x,y,z))) = Jelly(p1,(x,z,y))
-
-
-moveLeftward :: Jelly -> Jelly
-moveLeftward jelly@(Jelly(p1,(x,y,z))) = Jelly(p1,(z,y,x))
-
-
-moveRightward :: Jelly -> Jelly
-moveRightward jelly@(Jelly(p1,(x,y,z))) = Jelly(p1,(z,y,x))
+fellIntoVoid :: World -> Bool
+fellIntoVoid _ = False
 
 
 play :: World -> IO()
 play world@(World(jelly,table)) = do
-                print world
+                printWorld world
                 line <- getLine
                 if line /= "*"
                 then do
                     let movement = toMovement $ head line
                     if isJust movement
                     then do -- here I should update the table maybe and check if there was a solution found
-                        let supplanter = moveJelly jelly (fromJust movement) 
-                        play $ World(supplanter, table)
+                        let jelly' = moveJelly jelly (fromJust movement)
+                        if reachedGaol $ World(jelly',table)
+                        then
+                            putStrLn "Has pasado el nivel, ¡Felicidades!"
+                        else do
+                            if fellIntoVoid $ World(jelly',table)
+                            then
+                                putStrLn "Se acabó, has caido al vacio"
+                            else
+                                play $ World(jelly', table)
                     else do
                         putStrLn "Movimiento impossible!"
                         play world
@@ -102,4 +103,20 @@ resolve world = do
                 else return ()
 
 
+-- given the layout of the output I put on the layout Jelly
+generateOutput :: [String] -> [(Int,Int)] -> String
+generateOutput canva [] = unlines canva
+generateOutput canva ((a,b):xs) = generateOutput canva' xs
+    where
+        head = take a $ canva !! b
+        tail = drop (a+1) $ canva !! b
+        line = head ++ ['5'] ++ tail
+        canva' = take b canva ++ [line] ++ drop (b+1) canva 
 
+
+printWorld :: World -> IO()
+printWorld (World(Jelly((a,b),(x,y,_)),table)) = putStrLn $ generateOutput canva points 
+    where
+        canva = [ map toChar array | array <- table ]
+        (a',b') = (a+x-1,b+y-1)
+        points = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]

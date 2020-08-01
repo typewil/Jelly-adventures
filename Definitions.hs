@@ -7,7 +7,8 @@ module Definitions
         Jelly(..),
         Table(..),
         World(..),
-        createWorld
+        createWorld,
+        toChar
     ) where
 
 type Point = (Int,Int)
@@ -45,11 +46,7 @@ createWorld content = do
 -- creates game table with a part of the content of the game file
 initTable :: [String] -> Table
 initTable [] = []
-initTable (x:xs) = (parceStringToArrayArea x) : initTable xs
-
-
-parceStringToArrayArea :: String -> [Area]
-parceStringToArrayArea array = [ toArea x | x <- array ]
+initTable (x:xs) = (map toArea x) : initTable xs
 
 
 toArea :: Char -> Area
@@ -58,6 +55,14 @@ toArea c
     | c == '1' = Goal
     | c == '2' = Ice
     | otherwise = Ground
+
+
+toChar :: Area -> Char
+toChar a
+    | a == Hole = '0'
+    | a == Goal = '1'
+    | a == Ice = '2'
+    | otherwise = '3'
 
 
 initJelly :: [String] -> Jelly
