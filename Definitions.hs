@@ -5,8 +5,11 @@
 module Definitions
     (
         Jelly(..),
-        Table(..),
         World(..),
+        Area(..),
+        Table,
+        Point,
+        Volume,
         createWorld,
         toChar
     ) where
@@ -76,7 +79,7 @@ initJelly (l:xl) = Jelly ((a,b),(x,y,z))
 pointAndStartingArea :: [String] -> ((Int,Int),(Int,Int))
 pointAndStartingArea lines = ((xi,yi),(x,y))
     where 
-        ((xi,yi),(xf,yf)) = nearAndFarPoint lines '5'
+        ((xi,yi),(xf,yf)) = nearAndFarPoint lines 'B'
         x = xf - xi + 1
         y = yf - yi + 1
 

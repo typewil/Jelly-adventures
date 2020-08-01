@@ -18,6 +18,10 @@ import Definitions
     (
         World(..),
         Jelly(..),
+        Area(..),
+        Table,
+        Volume,
+        Point,
         toChar
     )
 
@@ -59,12 +63,44 @@ moveJelly (Jelly((a,b),(x,y,z))) movement
     | otherwise = Jelly((a+x,b),(z,y,x))
 
 
-reachedGaol :: World -> Bool
-reachedGaol _ = False
+reachedGaol :: Jelly -> Table -> Bool
+reachedGaol jelly tbl = jellyFits points tbl
+    where
+        points = whereIsJelly jelly
+    
+
+jellyFits :: [Point] -> Table -> Bool
 
 
-fellIntoVoid :: World -> Bool
-fellIntoVoid _ = False
+suckedDown :: Jelly -> Table -> Bool
+suckedDown jelly@(Jelly((a,b),(x,y,_))) tbl = outOfTable || suckedDownWithInTable jelly tbl
+    where
+        outOfTable = a < 0 || b < 0 || (a+x) > length (head tbl) || (b+y) > length tbl
+
+
+suckedDownWithInTable :: Jelly -> Table -> Bool
+suckedDownWithInTable jelly@(Jelly((a,b),volume)) tbl = brokenIce points tbl volume || holeIgnored points tbl 
+    where
+        points = whereIsJelly jelly
+
+
+-- if there is a ice in the table in any point of the collection,
+-- the ice breaks if Jelly is lying with its major pressure possible
+brokenIce :: [Point] -> Table -> Volume -> Bool
+brokenIce points tbl (x,y,z) = thereIsIce points tbl && x*y <= y*z && x*y <= x*z 
+
+
+thereIsIce :: [Point] -> Table -> Bool
+thereIsIce points table = appearsThisArea points table Ice 
+
+
+holeIgnored :: [Point] -> Table -> Bool
+holeIgnored points table = appearsThisArea points table Hole
+
+
+appearsThisArea :: [Point] -> Table -> Area -> Bool
+appearsThisArea [] _ _ = False
+appearsThisArea ((a,b):xs) tbl area = tbl !! b !! a == area || appearsThisArea xs tbl area
 
 
 play :: World -> IO()
@@ -75,13 +111,13 @@ play world@(World(jelly,table)) = do
                 then do
                     let movement = toMovement $ head line
                     if isJust movement
-                    then do -- here I should update the table maybe and check if there was a solution found
+                    then do
                         let jelly' = moveJelly jelly (fromJust movement)
-                        if reachedGaol $ World(jelly',table)
+                        if reachedGaol $ jelly' table
                         then
                             putStrLn "Has pasado el nivel, ¡Felicidades!"
                         else do
-                            if fellIntoVoid $ World(jelly',table)
+                            if suckedDown jelly' table -- aspirado
                             then
                                 putStrLn "Se acabó, has caido al vacio"
                             else
@@ -103,20 +139,25 @@ resolve world = do
                 else return ()
 
 
--- given the layout of the output I put on the layout Jelly
-generateOutput :: [String] -> [(Int,Int)] -> String
-generateOutput canva [] = unlines canva
-generateOutput canva ((a,b):xs) = generateOutput canva' xs
+-- given the layout of the output I put on the layout Jelly's representation
+generateOutput :: [String] -> Char -> [(Int,Int)] -> String
+generateOutput canva _ [] = unlines canva
+generateOutput canva jelly ((a,b):xs) = generateOutput canva' jelly xs
     where
         head = take a $ canva !! b
         tail = drop (a+1) $ canva !! b
-        line = head ++ ['5'] ++ tail
+        line = head ++ [jelly] ++ tail
         canva' = take b canva ++ [line] ++ drop (b+1) canva 
 
 
 printWorld :: World -> IO()
-printWorld (World(Jelly((a,b),(x,y,_)),table)) = putStrLn $ generateOutput canva points 
+printWorld (World(jelly,table)) = putStr $ generateOutput canva 'B' points 
     where
         canva = [ map toChar array | array <- table ]
+        points = whereIsJelly jelly
+
+
+whereIsJelly :: Jelly -> [Point]
+whereIsJelly (Jelly((a,b),(x,y,_))) = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
+    where
         (a',b') = (a+x-1,b+y-1)
-        points = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
