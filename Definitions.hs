@@ -5,9 +5,13 @@
 module Definitions
     (
         Jelly(..),
-        Table(..),
         World(..),
-        createWorld
+        Area(..),
+        Table,
+        Point,
+        Volume,
+        createWorld,
+        toChar
     ) where
 
 type Point = (Int,Int)
@@ -24,6 +28,11 @@ instance Eq Area where
     Ice == Ice = True
     Hole == Hole = True
     _ == _ = False
+
+
+instance Eq Jelly where
+    (Jelly(p1,v1)) == (Jelly(p2,v2)) = p1 == p2 && v1 == v2
+
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -45,11 +54,7 @@ createWorld content = do
 -- creates game table with a part of the content of the game file
 initTable :: [String] -> Table
 initTable [] = []
-initTable (x:xs) = (parceStringToArrayArea x) : initTable xs
-
-
-parceStringToArrayArea :: String -> [Area]
-parceStringToArrayArea array = [ toArea x | x <- array ]
+initTable (x:xs) = (map toArea x) : initTable xs
 
 
 toArea :: Char -> Area
@@ -58,6 +63,14 @@ toArea c
     | c == '1' = Goal
     | c == '2' = Ice
     | otherwise = Ground
+
+
+toChar :: Area -> Char
+toChar a
+    | a == Hole = '0'
+    | a == Goal = '1'
+    | a == Ice = '2'
+    | otherwise = '3'
 
 
 initJelly :: [String] -> Jelly
@@ -71,7 +84,7 @@ initJelly (l:xl) = Jelly ((a,b),(x,y,z))
 pointAndStartingArea :: [String] -> ((Int,Int),(Int,Int))
 pointAndStartingArea lines = ((xi,yi),(x,y))
     where 
-        ((xi,yi),(xf,yf)) = nearAndFarPoint lines '5'
+        ((xi,yi),(xf,yf)) = nearAndFarPoint lines 'B'
         x = xf - xi + 1
         y = yf - yi + 1
 
