@@ -4,9 +4,13 @@
 
 module Controller
     (
+        Movement(..),
         dispatch,
         play,
-        resolve
+        resolve,
+        moveJelly,
+        suckedDown,
+        reachedGaol
     ) where
 
 import System.IO
@@ -139,7 +143,7 @@ play world@(World(jelly,table)) = do
                     if isJust movement
                     then do
                         let jelly' = moveJelly jelly (fromJust movement)
-                        if reachedGaol $ jelly' table
+                        if reachedGaol jelly' table
                         then
                             putStrLn "Has pasado el nivel, ¡Felicidades!"
                         else do
