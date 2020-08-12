@@ -5,12 +5,11 @@
 module Controller
     (
         Movement(..),
-        dispatch,
         play,
-        resolve,
         moveJelly,
         suckedDown,
-        reachedGoal
+        reachedGoal,
+        printWorld
     ) where
 
 import System.IO
@@ -23,31 +22,15 @@ import Definitions
         World(..),
         Jelly(..),
         Area(..),
+        Movement(..),
         Table,
         Volume,
         Point,
         toChar
     )
-
-data Movement = Upward | Downward | Leftward | Rightward deriving Show
-
-instance Eq Movement where
-    Upward == Upward = True
-    Downward == Downward = True
-    Leftward == Leftward = True
-    Rightward == Rightward = True
-    _ == _ = False
     
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
-
--- map of functions
-dispatch :: [(String, World -> IO())]
-dispatch =  [
-            ("play",play),
-            ("resolve",resolve)
-            ]
-
 
 toMovement :: Char -> Maybe Movement
 toMovement c 
@@ -157,13 +140,3 @@ play world@(World(jelly,table)) = do
                         play world
                 else
                     putStrLn "UNA LASTIMA QUE NO QUIERAS SEGUIR JUGANDO... D':"
-
-
-resolve :: World -> IO()
-resolve world = do
-                c <- getChar
-                if c /= '*'
-                then do
-                    putChar c
-                    resolve world
-                else return ()

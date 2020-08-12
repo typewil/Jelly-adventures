@@ -1,6 +1,6 @@
 module Solver
     (
-
+        resolve    
     ) where
 
 import System.IO
@@ -11,34 +11,36 @@ import Definitions
     (
         World(..),
         Jelly(..),
-        Table
+        Route(..),
+        States(..),
+        Movement(..),
+        Table(..)
     )
 
 import Controller
     (
-        Movement(..),
         moveJelly,
         suckedDown,
-        reachedGoal
+        reachedGoal,
+        printWorld
     )
 
--- movements to achive the goal 
-type Route = [Movement]
-type States = [Jelly]
-
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
--- if returs an empty list, then in this state Jelly has no possible movement
-forwardMovements :: World -> [Movement]
-forwardMovements world = [ mvnt | mvnt <- movements, properMovement mvnt world]
-    where 
-        movements = [Upward, Downward, Leftward, Rightward]
+resolve :: World -> IO()
+resolve world@(World(jelly,table)) = do
+    putStrLn "Que passa joder"
 
-
-properMovement :: Movement -> World -> Bool
-properMovement mvnt (World(jelly,table)) = not $ suckedDown (moveJelly jelly mvnt) table
-
+printSolution :: Route -> World -> IO()
+printSolution [] _ = putStrLn "¡INCREIBLE!"
+printSolution (mvnt:xs) (World(jelly,table))= do
+                            putStr "Movimiento: "
+                            print mvnt
+                            let jelly' = moveJelly jelly mvnt
+                            printWorld $ World(jelly',table)
+                            printSolution xs (World(jelly',table))
+                            
 
 -- here we pass the map and a list with the first state of Jelly
 -- and returns a Just solution or Nothing. 
@@ -53,7 +55,8 @@ breadthFirst tbl visited lvl =      if isJust solution
                                             Nothing
                                         else do
                                             let visited' = updateVisitedStates lvl visited
-                                            breadthFirst tbl visited' (expand tbl visited lvl)
+                                                lvl' = expand tbl visited' lvl
+                                            breadthFirst tbl visited' lvl'
 
     where
         -- returns Just (Jelly,Route) if has solution, otherwise return Nothing
@@ -102,3 +105,14 @@ notCyclicalMovements jelly tbl states = utilMovements
         possibleMovements = forwardMovements (World(jelly,tbl))
         -- ading to the collection only the movements that does not generate states in wich Jelly has been previously
         utilMovements = [ mvnt | mvnt <- possibleMovements, not ((moveJelly jelly mvnt) `elem` states) ]
+
+
+-- if returs an empty list, then in this state Jelly has no possible movement
+forwardMovements :: World -> [Movement]
+forwardMovements world = [ mvnt | mvnt <- movements, properMovement mvnt world]
+    where 
+        movements = [Upward, Downward, Leftward, Rightward]
+
+
+properMovement :: Movement -> World -> Bool
+properMovement mvnt (World(jelly,table)) = not $ suckedDown (moveJelly jelly mvnt) table
