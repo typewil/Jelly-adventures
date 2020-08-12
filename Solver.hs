@@ -19,13 +19,15 @@ import Controller
         Movement(..),
         moveJelly,
         suckedDown,
-        reachedGaol
+        reachedGoal
     )
 
 -- movements to achive the goal 
 type Route = [Movement]
 type States = [Jelly]
 
+---------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------
 
 -- if returs an empty list, then in this state Jelly has no possible movement
 forwardMovements :: World -> [Movement]
@@ -39,27 +41,37 @@ properMovement mvnt (World(jelly,table)) = not $ suckedDown (moveJelly jelly mvn
 
 
 -- here we pass the map and a list with the first state of Jelly
--- and returns a solution or Nothing. If the response is Nothing, there is no solution
+-- and returns a Just solution or Nothing. 
+-- If the response is Nothing, there is no solution
 breadthFirst :: Table -> States -> [(Jelly,Route)] -> Maybe Route
-breadthFirst table visited lvl =    if isJust solution
+breadthFirst tbl visited lvl =      if isJust solution
                                     then
-                                        snd (fromJust solution)
+                                        Just (snd (fromJust solution))
                                     else
                                         if lvl == []
                                         then 
                                             Nothing
                                         else do
                                             let visited' = updateVisitedStates lvl visited
-                                            breadthFirst table visited' (expand table visited lvl)
+                                            breadthFirst tbl visited' (expand tbl visited lvl)
 
     where
-        func = reachedGaol table
-        solution = find func lvl -- returns the first element that satisfies the predicate
+        -- returns Just (Jelly,Route) if has solution, otherwise return Nothing
+        solution = reachedGoal' tbl lvl
+
+
+reachedGoal' :: Table -> [(Jelly,Route)] -> Maybe (Jelly,Route)
+reachedGoal' _ [] = Nothing
+reachedGoal' tbl ((jelly,route):xs) =   if reachedGoal jelly tbl
+                                        then 
+                                            Just (jelly,route)
+                                        else
+                                            reachedGoal' tbl xs
 
 
 updateVisitedStates :: [(Jelly,Route)] -> States -> States
 updateVisitedStates [] states = states
-updateVisitedStates ((jelly,_):xs) states = jelly : updateVisitedStates xs
+updateVisitedStates ((jelly,_):xs) states = jelly : updateVisitedStates xs states
 
 
 -- for each node in the current lvl I generate other nodes if it is possible
@@ -80,11 +92,7 @@ expandNode _ [] = []
 expandNode (jelly,route) (mvnt:xs) = (jelly', route') : expandNode (jelly,route) xs
     where
         route' = route ++ [mvnt]
-        jelly' = moveJelly jelly
-
-
-reachedGaol' :: Table -> (Jelly,Route) -> Bool
-reachedGaol' table (state,_) = reachedGaol state table
+        jelly' = moveJelly jelly mvnt
 
 
 -- avoiding cyclical movements

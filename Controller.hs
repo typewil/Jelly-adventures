@@ -1,5 +1,5 @@
 {- 
-    author: Wilber Bermeo [https://www.instagram.com/typewil] 
+    author: Wilber Bermeo Quito [https://www.instagram.com/wilberquito] 
 -}
 
 module Controller
@@ -10,7 +10,7 @@ module Controller
         resolve,
         moveJelly,
         suckedDown,
-        reachedGaol
+        reachedGoal
     ) where
 
 import System.IO
@@ -73,8 +73,8 @@ whereIsJelly (Jelly((a,b),(x,y,_))) = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
         (a',b') = (a+x-1,b+y-1)
 
         
-reachedGaol :: Jelly -> Table -> Bool
-reachedGaol jelly tbl = jellyFits points tbl
+reachedGoal :: Jelly -> Table -> Bool
+reachedGoal jelly tbl = jellyFits points tbl
     where
         points = whereIsJelly jelly
 
@@ -143,7 +143,7 @@ play world@(World(jelly,table)) = do
                     if isJust movement
                     then do
                         let jelly' = moveJelly jelly (fromJust movement)
-                        if reachedGaol jelly' table
+                        if reachedGoal jelly' table
                         then
                             putStrLn "Has pasado el nivel, ¡Felicidades!"
                         else do
