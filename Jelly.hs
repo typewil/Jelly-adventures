@@ -1,5 +1,5 @@
 {- 
-    author: Wilber Bermeo [https://www.instagram.com/typewil] 
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
 -}
 
 import System.Environment
@@ -7,20 +7,32 @@ import System.IO
 import Data.List
 import Data.Maybe
 
+import Solver
+    (
+        resolve
+    )
+
 import Controller
     (
-        dispatch,
-        play,
-        resolve
+        play
     )
 
 import Definitions 
     (
+        World(..),
         createWorld
     )   
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
+
+-- map of functions
+dispatch :: [(String, World -> IO())]
+dispatch =  [
+            ("play",play),
+            ("resolve",resolve)
+            ]
+
 
 main = do
     -- rescuing arguments

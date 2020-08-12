@@ -1,16 +1,15 @@
 {- 
-    author: Wilber Bermeo [https://www.instagram.com/typewil] 
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
 -}
 
 module Controller
     (
         Movement(..),
-        dispatch,
         play,
-        resolve,
         moveJelly,
         suckedDown,
-        reachedGaol
+        reachedGoal,
+        printWorld
     ) where
 
 import System.IO
@@ -23,31 +22,15 @@ import Definitions
         World(..),
         Jelly(..),
         Area(..),
+        Movement(..),
         Table,
         Volume,
         Point,
         toChar
     )
-
-data Movement = Upward | Downward | Leftward | Rightward deriving Show
-
-instance Eq Movement where
-    Upward == Upward = True
-    Downward == Downward = True
-    Leftward == Leftward = True
-    Rightward == Rightward = True
-    _ == _ = False
     
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
-
--- map of functions
-dispatch :: [(String, World -> IO())]
-dispatch =  [
-            ("play",play),
-            ("resolve",resolve)
-            ]
-
 
 toMovement :: Char -> Maybe Movement
 toMovement c 
@@ -73,8 +56,8 @@ whereIsJelly (Jelly((a,b),(x,y,_))) = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
         (a',b') = (a+x-1,b+y-1)
 
         
-reachedGaol :: Jelly -> Table -> Bool
-reachedGaol jelly tbl = jellyFits points tbl
+reachedGoal :: Jelly -> Table -> Bool
+reachedGoal jelly tbl = jellyFits points tbl
     where
         points = whereIsJelly jelly
 
@@ -143,7 +126,7 @@ play world@(World(jelly,table)) = do
                     if isJust movement
                     then do
                         let jelly' = moveJelly jelly (fromJust movement)
-                        if reachedGaol jelly' table
+                        if reachedGoal jelly' table
                         then
                             putStrLn "Has pasado el nivel, ¡Felicidades!"
                         else do
@@ -157,13 +140,3 @@ play world@(World(jelly,table)) = do
                         play world
                 else
                     putStrLn "UNA LASTIMA QUE NO QUIERAS SEGUIR JUGANDO... D':"
-
-
-resolve :: World -> IO()
-resolve world = do
-                c <- getChar
-                if c /= '*'
-                then do
-                    putChar c
-                    resolve world
-                else return ()

@@ -1,5 +1,5 @@
 {- 
-    @autor: [typewil](https://www.instagram.com/typewil/)
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
 -}
 
 module Definitions
@@ -7,6 +7,9 @@ module Definitions
         Jelly(..),
         World(..),
         Area(..),
+        Route(..),
+        States(..),
+        Movement(..),
         Table,
         Point,
         Volume,
@@ -17,10 +20,21 @@ module Definitions
 type Point = (Int,Int)
 type Volume = (Int,Int,Int)
 type Table  = [[Area]]
+-- movements to achive the goal 
+type Route = [Movement]
+type States = [Jelly]
 
 data Area = Goal | Ground | Ice | Hole deriving Show
 data Jelly = Jelly (Point,Volume) deriving Show
 data World = World (Jelly,Table)  deriving Show
+data Movement = Upward | Downward | Leftward | Rightward deriving Show
+
+instance Eq Movement where
+    Upward == Upward = True
+    Downward == Downward = True
+    Leftward == Leftward = True
+    Rightward == Rightward = True
+    _ == _ = False
 
 instance Eq Area where
     Goal == Goal = True
@@ -29,10 +43,8 @@ instance Eq Area where
     Hole == Hole = True
     _ == _ = False
 
-
 instance Eq Jelly where
     (Jelly(p1,v1)) == (Jelly(p2,v2)) = p1 == p2 && v1 == v2
-
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------
