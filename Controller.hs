@@ -1,5 +1,5 @@
 {- 
-    author: Wilber Bermeo Quito [https://www.instagram.com/wilberquito] 
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
 -}
 
 module Controller

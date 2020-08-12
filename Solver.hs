@@ -1,3 +1,7 @@
+{- 
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
+-}
+
 module Solver
     (
         resolve    
@@ -30,7 +34,13 @@ import Controller
 
 resolve :: World -> IO()
 resolve world@(World(jelly,table)) = do
-    putStrLn "Que passa joder"
+                            let solutionRoute = breadthFirst table [jelly] [(jelly,[])]
+                            if isJust solutionRoute
+                            then
+                                printSolution (fromJust solutionRoute) world
+                            else
+                                putStrLn "Parece que este mapa no tiene solución..."
+                                
 
 printSolution :: Route -> World -> IO()
 printSolution [] _ = putStrLn "¡INCREIBLE!"
@@ -49,7 +59,7 @@ breadthFirst :: Table -> States -> [(Jelly,Route)] -> Maybe Route
 breadthFirst tbl visited lvl =      if isJust solution
                                     then
                                         Just (snd (fromJust solution))
-                                    else
+                                    else do
                                         if lvl == []
                                         then 
                                             Nothing

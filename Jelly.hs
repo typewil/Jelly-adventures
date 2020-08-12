@@ -1,10 +1,6 @@
 {- 
-    author: Wilber Bermeo [https://www.instagram.com/typewil] 
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
 -}
-
-module Jelly
-    (
-    ) where
 
 import System.Environment
 import System.IO

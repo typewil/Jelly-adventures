@@ -1,5 +1,5 @@
 {- 
-    @autor: [typewil](https://www.instagram.com/typewil/)
+    @autor: [Cantact me](https://www.instagram.com/wilberquito/)
 -}
 
 module Definitions
