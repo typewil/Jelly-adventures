@@ -26,7 +26,8 @@ import Definitions
         Table,
         Volume,
         Point,
-        toChar
+        toChar,
+        nearAndFarPoints
     )
     
 ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -55,16 +56,20 @@ whereIsJelly (Jelly((a,b),(x,y,_))) = [ (ai,bi) | ai <- [a..a'], bi <- [b..b'] ]
     where
         (a',b') = (a+x-1,b+y-1)
 
-        
+
+-- this function checks if Jelly is on the meta and if it fixes in      
 reachedGoal :: Jelly -> Table -> Bool
 reachedGoal jelly tbl = jellyFits points tbl
     where
         points = whereIsJelly jelly
 
 
--- not implemented yet
 jellyFits :: [Point] -> Table -> Bool
-jellyFits points tbl = False
+jellyFits pointsJelly tbl = diffPoints == []
+    where
+        ((x0,y0),(x1,y1)) = nearAndFarPoints tbl Goal
+        pointsGoal = [ (xi,yi) | xi <- [x0..x1], yi <- [y0..y1] ]
+        diffPoints = [ pi | pi <- pointsJelly, not $ pi `elem` pointsGoal ]
 
 
 suckedDown :: Jelly -> Table -> Bool

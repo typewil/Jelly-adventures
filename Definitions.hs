@@ -14,7 +14,8 @@ module Definitions
         Point,
         Volume,
         createWorld,
-        toChar
+        toChar,
+        nearAndFarPoints
     ) where
 
 type Point = (Int,Int)
@@ -96,13 +97,13 @@ initJelly (l:xl) = Jelly ((a,b),(x,y,z))
 pointAndStartingArea :: [String] -> ((Int,Int),(Int,Int))
 pointAndStartingArea lines = ((xi,yi),(x,y))
     where 
-        ((xi,yi),(xf,yf)) = nearAndFarPoint lines 'B'
+        ((xi,yi),(xf,yf)) = nearAndFarPoints lines 'B'
         x = xf - xi + 1
         y = yf - yi + 1
 
 
-nearAndFarPoint :: Eq a => [[a]] -> a -> ((Int,Int),(Int,Int))
-nearAndFarPoint rows@(r:_) target = (p1,p2)
+nearAndFarPoints :: Eq a => [[a]] -> a -> ((Int,Int),(Int,Int))
+nearAndFarPoints rows@(r:_) target = (p1,p2)
     where
         points = [(x,y) | y <- [0..(length rows - 1)], x <- [0..(length r - 1)]]
         areaPoints = [ p | p <- points, appearsAtThisPoint p target rows ]
@@ -117,7 +118,7 @@ appearsAtThisPoint (x,y) target table = table !! y !! x == target
 
 -- I check if a face of Jelly fits the goal
 couldFitInGoal :: Table -> Volume -> Bool
-couldFitInGoal table volume@(x,y,z) = (xGaol >= x && yGoal >= y || xGaol >= y && yGoal >= x) || (xGaol >= y && yGoal >= z || xGaol >= z && yGoal >= y) 
+couldFitInGoal table (x,y,z) = (xGaol >= x && yGoal >= y || xGaol >= y && yGoal >= x) || (xGaol >= y && yGoal >= z || xGaol >= z && yGoal >= y) || (xGaol >= x && yGoal >= z || xGaol >= z && yGoal >= x) 
     where
         (xGaol,yGoal) = dimentionsGoal table
 
@@ -125,6 +126,6 @@ couldFitInGoal table volume@(x,y,z) = (xGaol >= x && yGoal >= y || xGaol >= y &&
 dimentionsGoal :: Table -> (Int,Int)
 dimentionsGoal table = (x,y)
     where
-        ((xi,yi),(xf,yf)) = nearAndFarPoint table Goal
+        ((xi,yi),(xf,yf)) = nearAndFarPoints table Goal
         x = xf - xi + 1
         y = yf - yi + 1

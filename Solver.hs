@@ -34,9 +34,11 @@ import Controller
 
 resolve :: World -> IO()
 resolve world@(World(jelly,table)) = do
-                            let solutionRoute = breadthFirst table [jelly] [(jelly,[])]
+                            let solutionRoute = breadthFirst table [] [(jelly,[])]
                             if isJust solutionRoute
-                            then
+                            then do
+                                putStrLn "Estado inicial"
+                                printWorld world
                                 printSolution (fromJust solutionRoute) world
                             else
                                 putStrLn "Parece que este mapa no tiene solución..."
@@ -65,7 +67,7 @@ breadthFirst tbl visited lvl =      if isJust solution
                                             Nothing
                                         else do
                                             let visited' = updateVisitedStates lvl visited
-                                                lvl' = expand tbl visited' lvl
+                                                lvl' = expand tbl visited lvl
                                             breadthFirst tbl visited' lvl'
 
     where
