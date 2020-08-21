@@ -1,4 +1,4 @@
--- [Contact](https://www.instagram.com/wilberquito/) --
+-- [Contact me](https://www.instagram.com/wilberquito/) --
 
 # Jelly's adventure
 Basic game to learn Haskell 
